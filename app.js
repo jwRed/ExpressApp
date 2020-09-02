@@ -7,6 +7,11 @@ const _ = require('lodash')
 const mysql = require('mysql')
 // 可直接引用json文件
 const sqlConfig = require('./config/PWConfig.json')
+// 日志组件
+const morgan = require('morgan')
+// 文件模块
+const fs = require('fs')
+const path = require('path')
 
 // 绝对路径尝试 - 可行
 // const sqlConfig = require('/Works/expressjs-test/config')
@@ -22,6 +27,22 @@ const connection = mysql.createConnection(sqlConfig)
 
 // 创建应用主体
 const app = express()
+
+const accessLogStream = fs.createWriteStream(path.join(__dirname, 'access.log'), { flags: 'a' })
+const errorLogStream = fs.createWriteStream(path.join(__dirname, 'error.log'), {flags : 'a'});
+
+// 将日志模块注入 app
+app.use(morgan('dev'))
+// log only 4xx and 5xx responses to console
+// 控制台仅打印 status 400 以上
+app.use(morgan('dev', {
+  skip: (req, res) => {
+    return res.statusCode < 400
+  }
+}))
+
+// 将日志模块注入 app, 并将流写入文件 'access.log'
+app.use(morgan('combined', { stream: accessLogStream }))
 
 // 创建基础返回内容
 let result = {
