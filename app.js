@@ -1,6 +1,6 @@
 // 引用express
 const express = require('express')
-const port = 3000
+const port = 8000
 const router = express.Router()
 const _ = require('lodash')
 // 引用sql以及其服务器配置
